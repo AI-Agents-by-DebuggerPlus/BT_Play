@@ -1,0 +1,21 @@
+# Secrets / local config — never commit real keys
+**/app/src/main/assets/default_settings.json
+!**/app/src/main/assets/default_settings.json.example
+**/local.properties
+
+# Build / IDE
+.vs/
+**/build/
+**/.gradle/
+**/.idea/
+**/.kotlin/
+*.apk
+*.aab
+*.iml
+*.user
+*.suo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

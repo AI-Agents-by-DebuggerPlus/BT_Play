@@ -1,0 +1,7 @@
+{
+  "supabaseUrl": "",
+  "supabaseAnonKey": "",
+  "senderName": "AndroidChatBtTest",
+  "recipientName": "WpfChat",
+  "useAnonymousAuth": true
+}

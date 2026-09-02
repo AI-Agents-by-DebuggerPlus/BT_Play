@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <queries>
+        <package android:name="com.google.android.tts" />
+        <package android:name="com.taskertowpf.androidchat" />
+        <package android:name="com.taskertowpf.androidchatcopy" />
+        <package android:name="com.taskertowpf.androidchatbttest" />
+        <package android:name="com.taskertowpf.androidbttest" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.englishtutor" />
+        <package android:name="com.music.player.mp3player.white" />
+    </queries>
+
+    <application
+        android:name=".AndroidChatBtTestV1App"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AndroidChatBtTestV1">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AndroidChatBtTestV1">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".InterceptMonitorActivity"
+            android:exported="false"
+            android:label="@string/intercept_monitor_title"
+            android:theme="@style/Theme.AndroidChatBtTestV1" />
+
+        <service
+            android:name=".headset.HeadsetMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+    </application>
+</manifest>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidBtTest</string>
+    <string name="headset_monitor_title">BT Play (AndroidBtTest)</string>
+    <string name="headset_monitor_text">Тест Play / Pause / Next на гарнитуре</string>
+</resources>

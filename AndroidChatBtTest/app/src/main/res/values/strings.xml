@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidChatBtTest</string>
+    <string name="headset_monitor_title">BT Play (AndroidChatBtTest)</string>
+    <string name="headset_monitor_text">Тест Play / Pause на гарнитуре</string>
+    <string name="intercept_monitor_title">Монитор перехвата BT</string>
+</resources>
