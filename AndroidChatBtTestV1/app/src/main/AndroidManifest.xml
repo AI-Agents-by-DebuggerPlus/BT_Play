@@ -14,6 +14,7 @@
         <package android:name="com.google.android.tts" />
         <package android:name="com.taskertowpf.androidchat" />
         <package android:name="com.taskertowpf.androidchatcopy" />
+        <package android:name="com.taskertowpf.androidchatcopyv1" />
         <package android:name="com.taskertowpf.androidchatbttest" />
         <package android:name="com.taskertowpf.androidbttest" />
         <package android:name="com.google.android.youtube" />
@@ -49,5 +50,15 @@
             android:name=".headset.HeadsetMonitorService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".headset.NoOpNotificationListener"
+            android:exported="true"
+            android:label="AndroidChatBtTestV1 diagnostics"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

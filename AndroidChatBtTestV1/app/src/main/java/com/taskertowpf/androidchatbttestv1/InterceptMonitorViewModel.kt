@@ -1,6 +1,8 @@
 package com.taskertowpf.androidchatbttestv1
 
 import android.app.Application
+import android.content.Intent
+import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.taskertowpf.androidchatbttestv1.data.ActiveMediaSessionRow
@@ -42,36 +44,54 @@ class InterceptMonitorViewModel(application: Application) : AndroidViewModel(app
 
     fun refreshNow(source: String = "manual") {
         viewModelScope.launch {
-            val rows = ActiveSessionsHelper.snapshot(getApplication())
+            val ctx = getApplication<Application>()
+            val accessOn = ActiveSessionsHelper.isNotificationAccessEnabled(ctx)
+            val rows = ActiveSessionsHelper.snapshot(ctx)
             applySessions(rows, source = source)
-            if (rows.isEmpty()) {
-                _uiState.update {
-                    it.copy(
-                        notificationAccessHint =
-                            "Baseline V1: NotificationListener отключён — ActiveSessions недоступны",
-                        statusText = "Нет данных ActiveSessions ($source)",
-                    )
+            when {
+                !accessOn -> {
+                    _uiState.update {
+                        it.copy(
+                            notificationAccessHint =
+                                "Включите Notification Access для AndroidChatBtTestV1, " +
+                                    "иначе ActiveSessions недоступны",
+                            statusText = "Нет Notification Access ($source)",
+                        )
+                    }
                 }
-            } else {
-                _uiState.update {
-                    it.copy(
-                        notificationAccessHint = "",
-                        statusText = "Обновлено: ${rows.size} сессий ($source)",
-                    )
+                rows.isEmpty() -> {
+                    _uiState.update {
+                        it.copy(
+                            notificationAccessHint = "",
+                            statusText = "ActiveSessions пусто ($source) — нет чужих/своих сессий",
+                        )
+                    }
+                }
+                else -> {
+                    _uiState.update {
+                        it.copy(
+                            notificationAccessHint = "",
+                            statusText = "Обновлено: ${rows.size} сессий ($source)",
+                        )
+                    }
                 }
             }
         }
     }
 
     fun openNotificationAccessSettings() {
+        val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        getApplication<Application>().startActivity(intent)
         _uiState.update {
-            it.copy(statusText = "Baseline V1: Notification Access не требуется")
+            it.copy(statusText = "Включите AndroidChatBtTestV1 в Notification Access, затем Обновить")
         }
     }
 
     fun reassertSelf() {
         HeadsetMonitorService.ensureRunning(getApplication())
-        _uiState.update { it.copy(statusText = "ensureRunning (baseline)") }
+        refreshNow(source = "reassert")
+        _uiState.update { it.copy(statusText = "ensureRunning + refresh") }
     }
 
     override fun onCleared() {

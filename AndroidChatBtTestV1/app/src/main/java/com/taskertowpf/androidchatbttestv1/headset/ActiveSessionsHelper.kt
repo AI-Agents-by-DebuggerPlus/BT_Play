@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
+import android.provider.Settings
 import android.support.v4.media.session.PlaybackStateCompat
 import com.taskertowpf.androidchatbttestv1.data.ActiveMediaSessionRow
 
@@ -12,14 +13,25 @@ object ActiveSessionsHelper {
     private const val OWN_PACKAGE = "com.taskertowpf.androidchatbttestv1"
 
     private val knownCompetitors = mapOf(
+        "com.taskertowpf.androidchatcopyv1" to "AndroidChatCopyV1 — текущий рабочий эталон MediaSession",
         "com.taskertowpf.androidchatcopy" to "AndroidChatCopy — часто перехватывает BT Play",
         "com.taskertowpf.androidchat" to "AndroidChat — рабочий эталон MediaSession",
+        "com.taskertowpf.androidchatbttest" to "AndroidChatBtTest — предыдущий тестовый sandbox",
         "com.taskertowpf.androidbttest" to "AndroidBtTest — старый тестовый sandbox",
         "com.google.android.youtube" to "YouTube — активная сессия забирает кнопку",
         "com.google.android.googlequicksearchbox" to "Google Assistant / media",
         "com.englishtutor" to "English Tutor",
         "com.music.player.mp3player.white" to "MP3-плеер",
     )
+
+    fun isNotificationAccessEnabled(context: Context): Boolean {
+        val flat = Settings.Secure.getString(
+            context.contentResolver,
+            "enabled_notification_listeners",
+        ).orEmpty()
+        val cn = ComponentName(context, NoOpNotificationListener::class.java).flattenToString()
+        return flat.split(':').any { it.equals(cn, ignoreCase = true) }
+    }
 
     fun snapshot(context: Context): List<ActiveMediaSessionRow> {
         val msm = context.getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager

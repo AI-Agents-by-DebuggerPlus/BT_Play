@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.taskertowpf.androidchatbttestv1.bluetooth.BluetoothAclReceiver
@@ -126,9 +127,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun openNotificationAccessSettings() {
+        logLocal("HeadsetDiag", "UI open Notification Access settings")
+        val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        getApplication<Application>().startActivity(intent)
         _uiState.update {
             it.copy(
-                statusText = "Baseline V1: Notification Access не нужен для BT Play",
+                statusText = "Включите AndroidChatBtTestV1 в Notification Access, затем Монитор перехвата",
             )
         }
     }
@@ -234,9 +239,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun saveSettings() {
+        val defaults = app.settingsRepository.load()
         val next = _uiState.value.settings.copy(
-            supabaseUrl = _uiState.value.supabaseUrlDraft.trim(),
-            supabaseAnonKey = _uiState.value.supabaseAnonDraft.trim(),
+            supabaseUrl = _uiState.value.supabaseUrlDraft.trim()
+                .ifBlank { defaults.supabaseUrl },
+            supabaseAnonKey = _uiState.value.supabaseAnonDraft.trim()
+                .ifBlank { defaults.supabaseAnonKey },
             senderName = _uiState.value.senderDraft.trim().ifBlank { "AndroidChatBtTestV1" },
             recipientName = _uiState.value.recipientDraft.trim().ifBlank { "WpfChat" },
         )

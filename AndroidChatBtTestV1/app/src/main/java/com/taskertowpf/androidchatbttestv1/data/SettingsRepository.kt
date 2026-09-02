@@ -19,27 +19,33 @@ class SettingsRepository(
             raw.isNullOrBlank() || raw == "{}" -> null
             else -> runCatching { json.decodeFromString<AppSettings>(raw) }.getOrNull()
         }
-        val merged = (saved ?: defaults).let { current ->
-            val sender = current.senderName.trim().ifBlank { defaults.senderName }
-            current.copy(
-                supabaseUrl = savedOrDefault(current.supabaseUrl, defaults.supabaseUrl),
-                supabaseAnonKey = savedOrDefault(current.supabaseAnonKey, defaults.supabaseAnonKey),
-                senderName = if (sender == "AndroidChatBtTest") defaults.senderName else sender,
-                recipientName = current.recipientName.ifBlank { defaults.recipientName },
-            )
-        }
-        if (merged != saved || saved == null) {
+        val base = saved ?: defaults
+        val merged = base.copy(
+            supabaseUrl = base.supabaseUrl.trim().ifBlank { defaults.supabaseUrl },
+            supabaseAnonKey = base.supabaseAnonKey.trim().ifBlank { defaults.supabaseAnonKey },
+            senderName = base.senderName.trim()
+                .ifBlank { defaults.senderName }
+                .let { if (it == "AndroidChatBtTest") defaults.senderName else it },
+            recipientName = base.recipientName.trim().ifBlank { defaults.recipientName },
+            useAnonymousAuth = base.useAnonymousAuth,
+        )
+        // Всегда пишем в prefs итоговые URL/key, чтобы после рестарта UI и upload видели их.
+        if (raw.isNullOrBlank() || merged != saved) {
             save(merged)
         }
         return merged
     }
 
     fun save(settings: AppSettings) {
-        prefs.edit().putString(KEY_SETTINGS, json.encodeToString(AppSettings.serializer(), settings)).apply()
+        val defaults = loadDefaultSettings()
+        val toStore = settings.copy(
+            supabaseUrl = settings.supabaseUrl.trim().ifBlank { defaults.supabaseUrl },
+            supabaseAnonKey = settings.supabaseAnonKey.trim().ifBlank { defaults.supabaseAnonKey },
+            senderName = settings.senderName.trim().ifBlank { defaults.senderName },
+            recipientName = settings.recipientName.trim().ifBlank { defaults.recipientName },
+        )
+        prefs.edit().putString(KEY_SETTINGS, json.encodeToString(AppSettings.serializer(), toStore)).apply()
     }
-
-    private fun savedOrDefault(value: String, default: String): String =
-        value.trim().ifBlank { default }
 
     private fun loadDefaultSettings(): AppSettings {
         val text = runCatching {
@@ -49,26 +55,28 @@ class SettingsRepository(
             return BUILT_IN_DEFAULTS
         }
         return runCatching { json.decodeFromString<AppSettings>(text) }
-            .getOrDefault(BUILT_IN_DEFAULTS)
+            .getOrElse { BUILT_IN_DEFAULTS }
             .let { fromAsset ->
                 fromAsset.copy(
-                    supabaseUrl = savedOrDefault(fromAsset.supabaseUrl, BUILT_IN_DEFAULTS.supabaseUrl),
-                    supabaseAnonKey = savedOrDefault(fromAsset.supabaseAnonKey, BUILT_IN_DEFAULTS.supabaseAnonKey),
-                    senderName = fromAsset.senderName.ifBlank { BUILT_IN_DEFAULTS.senderName },
-                    recipientName = fromAsset.recipientName.ifBlank { BUILT_IN_DEFAULTS.recipientName },
+                    supabaseUrl = fromAsset.supabaseUrl.trim().ifBlank { BUILT_IN_DEFAULTS.supabaseUrl },
+                    supabaseAnonKey = fromAsset.supabaseAnonKey.trim()
+                        .ifBlank { BUILT_IN_DEFAULTS.supabaseAnonKey },
+                    senderName = fromAsset.senderName.trim().ifBlank { BUILT_IN_DEFAULTS.senderName },
+                    recipientName = fromAsset.recipientName.trim()
+                        .ifBlank { BUILT_IN_DEFAULTS.recipientName },
                 )
             }
     }
 
     companion object {
-        private const val PREFS_NAME = "androidchatbttestv1_settings"
+        // v2 — сброс старых prefs с пустыми supabaseUrl/anonKey.
+        private const val PREFS_NAME = "androidchatbttestv1_settings_v2"
         private const val KEY_SETTINGS = "settings_json"
         private const val DEFAULT_ASSET = "default_settings.json"
 
-        // Реальные URL/key — только в gitignored default_settings.json.
         private val BUILT_IN_DEFAULTS = AppSettings(
-            supabaseUrl = "",
-            supabaseAnonKey = "",
+            supabaseUrl = "https://dauvhkttddxmqfkfunqg.supabase.co",
+            supabaseAnonKey = "sb_publishable_D1-ieyE_Tskl6BUrOSJ7RA_x-9spRcz",
             senderName = "AndroidChatBtTestV1",
             recipientName = "WpfChat",
             useAnonymousAuth = true,

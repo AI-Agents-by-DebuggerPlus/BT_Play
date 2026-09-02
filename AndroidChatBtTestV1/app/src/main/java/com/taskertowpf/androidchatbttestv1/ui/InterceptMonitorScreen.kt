@@ -111,8 +111,8 @@ fun InterceptMonitorScreen(
         ) {
             Text(
                 text = "Первое приложение в списке получает BT Play/Pause. " +
-                    "Если AndroidChatCopy запущен — он часто перехватывает кнопку, " +
-                    "даже когда AndroidChatBtTest стоит выше в списке (см. логи).",
+                    "Если AndroidChatCopy / AndroidChatCopyV1 запущен — он часто перехватывает кнопку. " +
+                    "Включите Notification Access, нажмите Обновить, затем Play на гарнитуре.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
